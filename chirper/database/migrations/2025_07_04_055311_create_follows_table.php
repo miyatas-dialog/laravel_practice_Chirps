@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('follows', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('following_id');
-            $table->foreign('following_id')->references('id')->on('users');
             $table->unsignedBigInteger('follower_id');
-            $table->foreign('follower_id')->references('id')->on('users');
             $table->timestamps();
+            //↓usersテーブルの主キーである「id」を参照
+            $table->foreign('following_id')->references('id')->on('users');
+            $table->foreign('follower_id')->references('id')->on('users');
         });
     }
 
