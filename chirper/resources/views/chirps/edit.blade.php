@@ -12,7 +12,6 @@
                 <x-primary-button>{{ __('Save') }}</x-primary-button>
                 <a href="{{ route('chirps.index') }}">{{ __('Cancel') }}</a>
             </div>
-            
         </form>
     </div>
 </x-app-layout>
