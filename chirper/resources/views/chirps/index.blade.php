@@ -10,7 +10,6 @@
             <x-input-error :messages="$errors->get('message')" class="mt-2" />
             <x-primary-button class="mt-4">{{ __('Chirp') }}</x-primary-button>
         </form>
-
         <div class="mt-6 bg-white shadow-sm rounded-lg divide-y">
             @foreach ($chirps as $chirp)
                 <div class="p-6 flex space-x-2">
@@ -20,7 +19,20 @@
                     <div class="flex-1">
                         <div class="flex justify-between items-center">
                             <div>
-                                <span class="text-gray-800">{{ $chirp->user->name }}</span>
+                                @if ($chirp->user->is(auth()->user()))
+                                    <span class="text-gray-800">{{ $chirp->user->name }}</span>
+                                @else
+                                    <x-dropdown>
+                                        <x-slot name="trigger" >
+                                            <button class="text-blue-400" >{{ $chirp->user->name }}</button>
+                                        </x-slot>
+                                        <x-slot name="content">
+                                            <x-dropdown-link href="#" class="follow-button">
+                                                {{ __('Follow') }}
+                                            </x-dropdown-link>
+                                        </x-slot>
+                                    </x-dropdown>
+                                @endif
                                 <small class="ml-2 text-sm text-gray-600">{{ $chirp->created_at->format('j M Y, g:i a') }}</small>
                                 @unless ($chirp->created_at->eq($chirp->updated_at))
                                     <small class="text-sm text-gray-600"> &middot; {{ __('edited') }}</small>
@@ -56,4 +68,19 @@
             @endforeach
         </div>
     </div>
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const followButtons = document.querySelectorAll('.follow-button');
+            followButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    alert('フォローボタンが押されました');
+                });
+            });
+
+        });
+    </script>
+    @endpush
 </x-app-layout>
