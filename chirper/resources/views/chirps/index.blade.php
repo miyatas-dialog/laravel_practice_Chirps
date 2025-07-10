@@ -27,7 +27,11 @@
                                             <button class="text-blue-400" >{{ $chirp->user->name }}</button>
                                         </x-slot>
                                         <x-slot name="content">
-                                            <x-dropdown-link href="#" class="follow-button">
+                                            <x-dropdown-link
+                                                href="#" 
+                                                class="follow-button"
+                                                data-user-id="{{ $chirp->user->id }}"
+                                            >
                                                 {{ __('Follow') }}
                                             </x-dropdown-link>
                                         </x-slot>
@@ -76,7 +80,10 @@
             followButtons.forEach(button => {
                 button.addEventListener('click', function(event) {
                     event.preventDefault();
-                    alert('フォローボタンが押されました');
+
+                    // ユーザーIDを取得
+                    const userId = this.dataset.userId;
+                    alert('ユーザーID: ' + userId + 'をフォローします');
                 });
             });
 
