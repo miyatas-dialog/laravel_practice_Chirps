@@ -23,4 +23,13 @@ Route::resource('chirps', ChirpController::class)
     ->only(['index', 'store', 'edit', 'update', 'destroy'])
     ->middleware(['auth', 'verified']);
 
+// 認証が必要なルートグループ内に追加
+Route::middleware('auth')->group(function () {
+    // 既存のルート...
+    
+    // フォロー関連のルート
+    Route::post('/users/{user}/follow', [App\Http\Controllers\FollowController::class, 'follow'])
+        ->name('users.follow');
+});
+
 require __DIR__.'/auth.php';
