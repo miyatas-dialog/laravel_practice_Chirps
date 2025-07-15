@@ -6,6 +6,7 @@ use App\Models\Chirp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response; 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -14,10 +15,24 @@ class ChirpController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        $chirps = Chirp::with('user')
+            ->when($request->get('filter') === 'following', function ($query) {
+                // フォローしているユーザーのIDを取得
+                $followingUserIds = Auth::user()->followings()->pluck('users.id');
+                
+                // 自分のIDも追加（自分の投稿も表示するため）
+                $followingUserIds->push(Auth::id());
+                
+                // フォロー中のユーザーの投稿のみを取得
+                $query->whereIn('user_id', $followingUserIds);
+            })
+            ->latest()
+            ->get();
+
         return view('chirps.index', [
-            'chirps' => Chirp::with('user')->latest()->get(),
+            'chirps' => $chirps,
         ]);
     }
 

@@ -75,15 +75,49 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
             const followButtons = document.querySelectorAll('.follow-button');
+
             followButtons.forEach(button => {
-                button.addEventListener('click', function(event) {
+                button.addEventListener('click', async function(event) {
                     event.preventDefault();
 
-                    // ユーザーIDを取得
+                    //ボタンの情報を取得
                     const userId = this.dataset.userId;
-                    alert('ユーザーID: ' + userId + 'をフォローします');
+
+                    //ボタンを無効化（連打防止）
+                    this.style.pointerEvents = 'none';
+                    this.style.opacity = '0.5';
+
+                    try{
+                        //APIリクエストを送信
+                        const response = await axios.post(`/users/${userId}/follow`);
+
+                        const data = response.data;
+
+                        if(data.success){
+                            //ボタンのテキストを「フォロー済み」に更新
+                            this.textContent = 'フォロー済み';
+                            this.classList.add('text-gray-500');
+
+                            //成功メッセージを表示（コンソールに出力）
+                            console.log('フォロー成功:', data.message);
+                        }
+                    } catch(error) {
+                        if(error.response) {
+                            //サーバーからのエラーレスポンス
+                            const data = error.response.data;
+                            console.error('フォローエラー:', data.message);
+                            alert('エラー: ' + (data.message || 'フォローに失敗しました'));
+                        } else {
+                            //ネットワークエラーなど
+                            console.error('フォローエラー:', error);
+                            alert('通信エラーが発生しました');
+                        }
+                    } finally {
+                        //ボタンを再度有効化
+                        this.style.pointerEvents = 'auto';
+                        this.style.opacity = '1';
+                    }
                 });
             });
 
