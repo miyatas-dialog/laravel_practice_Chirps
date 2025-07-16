@@ -34,6 +34,13 @@
                                             >
                                                 {{ __('Follow') }}
                                             </x-dropdown-link>
+                                            <x-dropdown-link
+                                                href="#" 
+                                                class="unfollow-button"
+                                                data-user-id="{{ $chirp->user->id }}"
+                                            >
+                                                {{ __('Unfollow') }}
+                                            </x-dropdown-link>
                                         </x-slot>
                                     </x-dropdown>
                                 @endif
@@ -76,6 +83,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const followButtons = document.querySelectorAll('.follow-button');
+            const unfollowButtons =document.querySelectorAll('.unfollow-button');
 
             followButtons.forEach(button => {
                 button.addEventListener('click', async function(event) {
@@ -111,6 +119,50 @@
                         } else {
                             //ネットワークエラーなど
                             console.error('フォローエラー:', error);
+                            alert('通信エラーが発生しました');
+                        }
+                    } finally {
+                        //ボタンを再度有効化
+                        this.style.pointerEvents = 'auto';
+                        this.style.opacity = '1';
+                    }
+                });
+            });
+
+            unfollowButtons.forEach(button => {
+                button.addEventListener('click', async function(event) {
+                    event.preventDefault();
+
+                    //ボタンの情報を取得
+                    const userId = this.dataset.userId;
+
+                    //ボタンを無効化（連打防止）
+                    this.style.pointerEvents = 'none';
+                    this.style.opacity = '0.5';
+
+                    try{
+                        //APIリクエストを送信
+                        const response = await axios.post(`/users/${userId}/unfollow`);
+
+                        const data = response.data;
+
+                        if(data.success){
+                            //ボタンのテキストを「フォロー解除済み」に更新
+                            this.textContent = 'フォロー解除済み';
+                            this.classList.add('text-gray-500');
+
+                            //成功メッセージを表示（コンソールに出力）
+                            console.log('フォロー解除成功:', data.message);
+                        }
+                    } catch(error) {
+                        if(error.response) {
+                            //サーバーからのエラーレスポンス
+                            const data = error.response.data;
+                            console.error('フォロー解除エラー:', data.message);
+                            alert('エラー: ' + (data.message || 'フォロー解除に失敗しました'));
+                        } else {
+                            //ネットワークエラーなど
+                            console.error('フォロー解除エラー:', error);
                             alert('通信エラーが発生しました');
                         }
                     } finally {

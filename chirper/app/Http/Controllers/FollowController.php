@@ -36,4 +36,30 @@ class FollowController extends Controller
             ], 500);
         }
     }
+
+    public function unfollow(Request $request, User $user)
+    {
+        // 自分自身をフォローできないようにする
+        if (Auth::id() === $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => '自分自身をフォロー解除することはできません'
+            ], 400);
+        }
+
+        try {
+            Auth::user()->unfollow($user);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'フォロー解除しました',
+                'is_following' => true
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'フォロー解除に失敗しました'
+            ], 500);
+        }
+    }
 }
