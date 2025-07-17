@@ -22,7 +22,7 @@
                                 @if ($chirp->user->is(auth()->user()))
                                     <span class="text-gray-800">{{ $chirp->user->name }}</span>
                                 @else
-                                    <x-dropdown>
+                                    <x-dropdown class="follow-menu">
                                         <x-slot name="trigger" >
                                             <button class="text-blue-400" >{{ $chirp->user->name }}</button>
                                         </x-slot>
@@ -32,14 +32,14 @@
                                                 class="follow-button"
                                                 data-user-id="{{ $chirp->user->id }}"
                                             >
-                                                {{ __('Follow') }}
+                                                {{ __('フォロー') }}
                                             </x-dropdown-link>
                                             <x-dropdown-link
                                                 href="#" 
                                                 class="unfollow-button"
                                                 data-user-id="{{ $chirp->user->id }}"
                                             >
-                                                {{ __('Unfollow') }}
+                                                {{ __('フォロー解除') }}
                                             </x-dropdown-link>
                                         </x-slot>
                                     </x-dropdown>
@@ -103,12 +103,19 @@
                         const data = response.data;
 
                         if(data.success){
-                            //ボタンのテキストを「フォロー済み」に更新
-                            this.textContent = 'フォロー済み';
+                            //ボタンのテキストを「既にフォロー中です」に更新
+                            this.textContent = '既にフォロー中です';
                             this.classList.add('text-gray-500');
 
                             //成功メッセージを表示（コンソールに出力）
                             console.log('フォロー成功:', data.message);
+
+                            const unfollowButton = this.closest('.follow-menu').querySelector('.unfollow-button');
+                            if(unfollowButton.textContent === 'フォローしていません'){
+                                unfollowButton.textContent = 'フォロー解除';
+                            }
+                            
+
                         }
                     } catch(error) {
                         if(error.response) {
@@ -147,12 +154,17 @@
                         const data = response.data;
 
                         if(data.success){
-                            //ボタンのテキストを「フォロー解除済み」に更新
-                            this.textContent = 'フォロー解除済み';
+                            //ボタンのテキストを「フォローしていません」に更新
+                            this.textContent = 'フォローしていません';
                             this.classList.add('text-gray-500');
 
                             //成功メッセージを表示（コンソールに出力）
                             console.log('フォロー解除成功:', data.message);
+
+                            const followButton = this.closest('.follow-menu').querySelector('.follow-button');
+                            if(followButton.textContent === '既にフォロー中です'){
+                                followButton.textContent = 'フォロー';
+                            }
                         }
                     } catch(error) {
                         if(error.response) {
