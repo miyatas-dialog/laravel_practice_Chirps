@@ -32,14 +32,22 @@
                                                 class="follow-button"
                                                 data-user-id="{{ $chirp->user->id }}"
                                             >
-                                                {{ __('フォロー') }}
+                                                @if (auth()->user()->isFollowing($chirp->user))
+                                                    {{ __('既にフォロー中です') }}
+                                                @else
+                                                    {{ __('フォロー') }}
+                                                @endif
                                             </x-dropdown-link>
                                             <x-dropdown-link
                                                 href="#" 
                                                 class="unfollow-button"
                                                 data-user-id="{{ $chirp->user->id }}"
                                             >
-                                                {{ __('フォロー解除') }}
+                                                @if (auth()->user()->isFollowing($chirp->user))
+                                                    {{ __('フォロー解除') }}
+                                                @else
+                                                    {{ __('フォローしていません') }}
+                                                @endif
                                             </x-dropdown-link>
                                         </x-slot>
                                     </x-dropdown>
