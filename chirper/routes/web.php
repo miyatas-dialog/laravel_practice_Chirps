@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
     // フォロー関連のルート
     Route::post('/users/{user}/follow', [App\Http\Controllers\FollowController::class, 'follow'])
         ->name('users.follow');
+    // フォロー解除のルート
+    Route::post('/users/{user}/unfollow', [App\Http\Controllers\FollowController::class, 'unfollow'])
+        ->name('users.unfollow');
 });
 
 require __DIR__.'/auth.php';

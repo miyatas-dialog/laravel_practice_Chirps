@@ -18,11 +18,11 @@
                     </svg>
                     <div class="flex-1">
                         <div class="flex justify-between items-center">
-                            <div>
+                            <div class="flex justify-start items-center w-full p-1">
                                 @if ($chirp->user->is(auth()->user()))
                                     <span class="text-gray-800">{{ $chirp->user->name }}</span>
                                 @else
-                                    <x-dropdown>
+                                    <x-dropdown class="follow-menu">
                                         <x-slot name="trigger" >
                                             <button class="text-blue-400" >{{ $chirp->user->name }}</button>
                                         </x-slot>
@@ -32,7 +32,22 @@
                                                 class="follow-button"
                                                 data-user-id="{{ $chirp->user->id }}"
                                             >
-                                                {{ __('Follow') }}
+                                                @if (auth()->user()->isFollowing($chirp->user))
+                                                    {{ __('既にフォロー中です') }}
+                                                @else
+                                                    {{ __('フォロー') }}
+                                                @endif
+                                            </x-dropdown-link>
+                                            <x-dropdown-link
+                                                href="#" 
+                                                class="unfollow-button"
+                                                data-user-id="{{ $chirp->user->id }}"
+                                            >
+                                                @if (auth()->user()->isFollowing($chirp->user))
+                                                    {{ __('フォロー解除') }}
+                                                @else
+                                                    {{ __('フォローしていません') }}
+                                                @endif
                                             </x-dropdown-link>
                                         </x-slot>
                                     </x-dropdown>
@@ -76,6 +91,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const followButtons = document.querySelectorAll('.follow-button');
+            const unfollowButtons =document.querySelectorAll('.unfollow-button');
 
             followButtons.forEach(button => {
                 button.addEventListener('click', async function(event) {
@@ -95,12 +111,19 @@
                         const data = response.data;
 
                         if(data.success){
-                            //ボタンのテキストを「フォロー済み」に更新
-                            this.textContent = 'フォロー済み';
+                            //ボタンのテキストを「既にフォロー中です」に更新
+                            this.textContent = '既にフォロー中です';
                             this.classList.add('text-gray-500');
 
                             //成功メッセージを表示（コンソールに出力）
                             console.log('フォロー成功:', data.message);
+
+                            const unfollowButton = this.closest('.follow-menu').querySelector('.unfollow-button');
+                            if(unfollowButton.textContent === 'フォローしていません'){
+                                unfollowButton.textContent = 'フォロー解除';
+                            }
+                            
+
                         }
                     } catch(error) {
                         if(error.response) {
@@ -111,6 +134,55 @@
                         } else {
                             //ネットワークエラーなど
                             console.error('フォローエラー:', error);
+                            alert('通信エラーが発生しました');
+                        }
+                    } finally {
+                        //ボタンを再度有効化
+                        this.style.pointerEvents = 'auto';
+                        this.style.opacity = '1';
+                    }
+                });
+            });
+
+            unfollowButtons.forEach(button => {
+                button.addEventListener('click', async function(event) {
+                    event.preventDefault();
+
+                    //ボタンの情報を取得
+                    const userId = this.dataset.userId;
+
+                    //ボタンを無効化（連打防止）
+                    this.style.pointerEvents = 'none';
+                    this.style.opacity = '0.5';
+
+                    try{
+                        //APIリクエストを送信
+                        const response = await axios.post(`/users/${userId}/unfollow`);
+
+                        const data = response.data;
+
+                        if(data.success){
+                            //ボタンのテキストを「フォローしていません」に更新
+                            this.textContent = 'フォローしていません';
+                            this.classList.add('text-gray-500');
+
+                            //成功メッセージを表示（コンソールに出力）
+                            console.log('フォロー解除成功:', data.message);
+
+                            const followButton = this.closest('.follow-menu').querySelector('.follow-button');
+                            if(followButton.textContent === '既にフォロー中です'){
+                                followButton.textContent = 'フォロー';
+                            }
+                        }
+                    } catch(error) {
+                        if(error.response) {
+                            //サーバーからのエラーレスポンス
+                            const data = error.response.data;
+                            console.error('フォロー解除エラー:', data.message);
+                            alert('エラー: ' + (data.message || 'フォロー解除に失敗しました'));
+                        } else {
+                            //ネットワークエラーなど
+                            console.error('フォロー解除エラー:', error);
                             alert('通信エラーが発生しました');
                         }
                     } finally {
