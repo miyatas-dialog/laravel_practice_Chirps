@@ -18,7 +18,7 @@
                     </svg>
                     <div class="flex-1">
                         <div class="flex justify-between items-center">
-                            <div>
+                            <div class="flex justify-start items-center w-full p-1">
                                 @if ($chirp->user->is(auth()->user()))
                                     <span class="text-gray-800">{{ $chirp->user->name }}</span>
                                 @else
